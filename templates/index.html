@@ -1,0 +1,440 @@
+`templates/index.html`
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatBot Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --glass-effect: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+
+        body {
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .glass-card {
+            background: var(--glass-effect);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar {
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(15px);
+            border-right: 1px solid var(--glass-border);
+        }
+
+        .chat-container {
+            height: calc(100vh - 200px);
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            margin: 8px 0;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .user-message {
+            background: var(--secondary-gradient);
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
+        }
+
+        .bot-message {
+            background: #f8f9fa;
+            color: #333;
+            margin-right: auto;
+            border-bottom-left-radius: 5px;
+            border: 1px solid #e9ecef;
+        }
+
+        .stat-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 12px 16px;
+            background: #f8f9fa;
+            border-radius: 18px;
+            margin: 8px 0;
+            width: fit-content;
+            border: 1px solid #e9ecef;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #6c757d;
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+    <!-- Sidebar -->
+    <div class="sidebar w-64 p-6 text-white flex flex-col">
+        <!-- Logo -->
+        <div class="text-center mb-8">
+            <div class="w-16 h-16 mx-auto mb-3 glass-card rounded-full flex items-center justify-center">
+                <i class="fas fa-robot text-2xl"></i>
+            </div>
+            <h1 class="text-2xl font-bold">ChatBot Pro</h1>
+            <p class="text-sm opacity-80">AI Assistant Dashboard</p>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1">
+            <ul class="space-y-2">
+                <li>
+                    <a href="#" class="flex items-center p-3 rounded-lg bg-white bg-opacity-10 hover:bg-opacity-20 transition">
+                        <i class="fas fa-comments mr-3"></i>
+                        <span>Chat</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition">
+                        <i class="fas fa-chart-line mr-3"></i>
+                        <span>Analytics</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition">
+                        <i class="fas fa-cog mr-3"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition">
+                        <i class="fas fa-users mr-3"></i>
+                        <span>Users</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- User Profile -->
+        <div class="pt-6 border-t border-white border-opacity-20">
+            <div class="flex items-center">
+                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/7de9989d-0534-4925-ba7e-3dbfc6e32fd3.png" alt="User profile picture showing a professional headshot" class="w-10 h-10 rounded-full mr-3">
+                <div>
+                    <p class="font-semibold">Admin User</p>
+                    <p class="text-sm opacity-80">Online</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col">
+        <!-- Header -->
+        <header class="bg-white bg-opacity-90 backdrop-blur-sm p-6 border-b border-gray-200">
+            <div class="flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-gray-800">Chat Dashboard</h2>
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <i class="fas fa-bell text-gray-600 text-xl"></i>
+                        <span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">3</span>
+                    </div>
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
+                        AU
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Stats Cards -->
+        <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="stat-card glass-card p-6 text-white">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm opacity-80">Total Chats</p>
+                        <p class="text-2xl font-bold">1,247</p>
+                    </div>
+                    <i class="fas fa-comments text-xl opacity-60"></i>
+                </div>
+                <div class="mt-2 text-sm text-green-300">
+                    <i class="fas fa-arrow-up"></i> 12% this week
+                </div>
+            </div>
+
+            <div class="stat-card glass-card p-6 text-white">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm opacity-80">Active Users</p>
+                        <p class="text-2xl font-bold">89</p>
+                    </div>
+                    <i class="fas fa-users text-xl opacity-60"></i>
+                </div>
+                <div class="mt-2 text-sm text-green-300">
+                    <i class="fas fa-arrow-up"></i> 8% today
+                </div>
+            </div>
+
+            <div class="stat-card glass-card p-6 text-white">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm opacity-80">Response Time</p>
+                        <p class="text-2xl font-bold">0.5s</p>
+                    </div>
+                    <i class="fas fa-bolt text-xl opacity-60"></i>
+                </div>
+                <div class="mt-2 text-sm text-green-300">
+                    <i class="fas fa-arrow-down"></i> 20% faster
+                </div>
+            </div>
+
+            <div class="stat-card glass-card p-6 text-white">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm opacity-80">Satisfaction</p>
+                        <p class="text-2xl font-bold">94%</p>
+                    </div>
+                    <i class="fas fa-star text-xl opacity-60"></i>
+                </div>
+                <div class="mt-2 text-sm text-green-300">
+                    <i class="fas fa-arrow-up"></i> 3% this month
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Container -->
+        <div class="flex-1 p-6">
+            <div class="chat-container p-6">
+                <!-- Chat Header -->
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white mr-3">
+                            <i class="fas fa-robot text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-800">AI Assistant</h3>
+                            <p class="text-sm text-gray-600">Online - Ready to help</p>
+                        </div>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="p-2 rounded-lg hover:bg-gray-100 transition">
+                            <i class="fas fa-phone text-gray-600"></i>
+                        </button>
+                        <button class="p-2 rounded-lg hover:bg-gray-100 transition">
+                            <i class="fas fa-video text-gray-600"></i>
+                        </button>
+                        <button class="p-2 rounded-lg hover:bg-gray-100 transition">
+                            <i class="fas fa-ellipsis-v text-gray-600"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Messages Container -->
+                <div class="h-96 overflow-y-auto mb-4 p-4 space-y-3" id="messages-container">
+                    <!-- Welcome message -->
+                    <div class="message bot-message">
+                        <div class="flex items-start">
+                            <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white mr-3 flex-shrink-0">
+                                <i class="fas fa-robot text-sm"></i>
+                            </div>
+                            <div>
+                                <p>Hello! I'm your AI assistant. How can I help you today? I can answer questions, provide information, or just chat with you about various topics.</p>
+                                <span class="text-xs text-gray-500 mt-1 block">Just now</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Typing Indicator -->
+                <div class="typing-indicator mb-4" id="typing-indicator">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white mr-3 flex-shrink-0">
+                            <i class="fas fa-robot text-sm"></i>
+                        </div>
+                        <div class="typing-dots">
+                            <span class="typing-dot"></span>
+                            <span class="typing-dot"></span>
+                            <span class="typing-dot"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input Area -->
+                <div class="flex space-x-3">
+                    <input 
+                        type="text" 
+                        id="message-input" 
+                        placeholder="Type your message here..." 
+                        class="flex-1 p-4 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                    <button 
+                        id="send-button" 
+                        class="px-6 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-2xl hover:from-blue-600 hover:to-purple-700 transition-all duration-300 flex items-center justify-center"
+                    >
+                        <i class="fas fa-paper-plane mr-2"></i>
+                        Send
+                    </button>
+                </div>
+
+                <!-- Quick Replies -->
+                <div class="mt-4 flex flex-wrap gap-2">
+                    <button class="quick-reply px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition text-sm">
+                        Hello!
+                    </button>
+                    <button class="quick-reply px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition text-sm">
+                        How are you?
+                    </button>
+                    <button class="quick-reply px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition text-sm">
+                        What can you do?
+                    </button>
+                    <button class="quick-reply px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition text-sm">
+                        Tell me a joke
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const messageInput = document.getElementById('message-input');
+            const sendButton = document.getElementById('send-button');
+            const messagesContainer = document.getElementById('messages-container');
+            const typingIndicator = document.getElementById('typing-indicator');
+            const quickReplies = document.querySelectorAll('.quick-reply');
+
+            // Function to add message to chat
+            function addMessage(text, isUser = false) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+                
+                const timestamp = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                messageDiv.innerHTML = `
+                    <div class="flex items-start ${isUser ? 'flex-row-reverse' : ''}">
+                        <div class="w-8 h-8 ${isUser ? 'bg-gradient-to-r from-green-500 to-teal-600 ml-3' : 'bg-gradient-to-r from-blue-500 to-purple-600 mr-3'} rounded-full flex items-center justify-center text-white flex-shrink-0">
+                            <i class="fas ${isUser ? 'fa-user' : 'fa-robot'} text-sm"></i>
+                        </div>
+                        <div class="${isUser ? 'text-right' : ''}">
+                            <p>${text}</p>
+                            <span class="text-xs ${isUser ? 'text-blue-100' : 'text-gray-500'} mt-1 block">${timestamp}</span>
+                        </div>
+                    </div>
+                `;
+                
+                messagesContainer.appendChild(messageDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+
+            // Function to show typing indicator
+            function showTyping() {
+                typingIndicator.style.display = 'block';
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+
+            // Function to hide typing indicator
+            function hideTyping() {
+                typingIndicator.style.display = 'none';
+            }
+
+            // Function to send message
+            async function sendMessage() {
+                const message = messageInput.value.trim();
+                if (!message) return;
+
+                // Add user message
+                addMessage(message, true);
+                messageInput.value = '';
+
+                // Show typing indicator
+                showTyping();
+
+                try {
+                    // Send message to server
+                    const response = await fetch('/ask', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ message: message })
+                    });
+
+                    const data = await response.json();
+
+                    // Hide typing indicator
+                    hideTyping();
+
+                    if (data.response) {
+                        // Add bot response
+                        addMessage(data.response, false);
+                    } else {
+                        addMessage("Sorry, I couldn't process your request. Please try again.", false);
+                    }
+                } catch (error) {
+                    hideTyping();
+                    addMessage("Oops! Something went wrong. Please check your connection and try again.", false);
+                }
+            }
+
+            // Event listeners
+            sendButton.addEventListener('click', sendMessage);
+            
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+
+            // Quick replies
+            quickReplies.forEach(button => {
+                button.addEventListener('click', function() {
+                    messageInput.value = this.textContent;
+                    sendMessage();
+                });
+            });
+
+            // Focus input on load
+            messageInput.focus();
+        });
+    </script>
+</body>
+</html>
+
+```
